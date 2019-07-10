@@ -1,5 +1,7 @@
 import React, { ChangeEvent, FC, useEffect, useState } from 'react';
 import { getUsers, User } from '../../apis/users';
+import ExampleLogin from './ExampleLogin';
+import ExampleWorkflows from './ExampleWorkflows';
 
 const Example: FC = () => {
   const [loading, setLoading] = useState(true);
@@ -31,20 +33,9 @@ const Example: FC = () => {
     return <div>ERROR</div>;
   }
   if (userName === '') {
-    return (
-      <select value={userName} onChange={handleChange} required={true}>
-        <option value="" disabled={true}>
-          Select user
-        </option>
-        {users.map(user => (
-          <option key={user.id} value={user.name}>
-            {user.name}
-          </option>
-        ))}
-      </select>
-    );
+    return <ExampleLogin onChange={handleChange} userName={userName} users={users} />;
   }
-  return <div>Logged In</div>;
+  return <ExampleWorkflows userName={userName} />;
 };
 
 export default Example;
