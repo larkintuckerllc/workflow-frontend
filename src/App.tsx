@@ -1,5 +1,6 @@
 import React from 'react';
 import './App.css';
+import Example from './components/Example';
 import logo from './logo.svg';
 
 const App: React.FC = () => {
@@ -18,6 +19,7 @@ const App: React.FC = () => {
         >
           Learn React
         </a>
+        <Example />
       </header>
     </div>
   );
