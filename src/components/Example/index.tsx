@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FC, useEffect, useState } from 'react';
+import React, { FC, useCallback, useEffect, useState } from 'react';
 import { getUsers, User } from '../../apis/users';
 import ExampleLogin from './ExampleLogin';
 import ExampleWorkflows from './ExampleWorkflows';
@@ -21,10 +21,9 @@ const Example: FC = () => {
     load();
   }, []);
 
-  const handleChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const changedUserName = event.target.value;
+  const handleChange = useCallback((changedUserName: string) => {
     setUserName(changedUserName);
-  };
+  }, []);
 
   if (loading) {
     return <div>LOADING</div>;

@@ -2,14 +2,19 @@ import React, { ChangeEvent, FC } from 'react';
 import { User } from '../../apis/users';
 
 interface Props {
-  onChange: (event: ChangeEvent<HTMLSelectElement>) => void;
+  onChange: (userName: string) => void;
   userName: string;
   users: User[];
 }
 
 const ExampleLogin: FC<Props> = ({ onChange, userName, users }) => {
+  const handleChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const changedUserName = event.target.value;
+    onChange(changedUserName);
+  };
+
   return (
-    <select value={userName} onChange={onChange} required={true}>
+    <select value={userName} onChange={handleChange} required={true}>
       <option value="" disabled={true}>
         Select user
       </option>
