@@ -1,5 +1,6 @@
 import React, { FC, useCallback, useEffect, useState } from 'react';
 import { getWorkflows, Workflow } from '../../../apis/workflows';
+import { getWorkflowTypes, WorkflowType } from '../../../apis/workflowTypes';
 import ExampleWorkflowsDetail from './ExampleWorkflowsDetail';
 import ExampleWorkflowsItem from './ExampleWorkflowsItem';
 
@@ -16,12 +17,18 @@ const ExampleWorkflows: FC<Props> = ({ userName }) => {
   const [error, setError] = useState(false);
   const [workflowIds, setWorkflowIds] = useState<number[]>([]);
   const [workflowById, setWorkflowById] = useState<WorkflowById>({});
+  const [workflowTypes, setWorkflowTypes] = useState<WorkflowType[]>([]);
   const [currentWorkflow, setCurrentWorkflow] = useState<number | null>(null);
   useEffect(() => {
     const load = async () => {
       try {
-        // TODO: GET PERMISSIONS ETC
-        const loadedWorkflows = await getWorkflows();
+        // TODO: GET PERMISSIONS
+        const loadedWorkflowsPromise = getWorkflows();
+        const loadedWorkflowTypesPromise = getWorkflowTypes();
+        const [loadedWorkflows, loadedWorkflowTypes] = await Promise.all([
+          loadedWorkflowsPromise,
+          loadedWorkflowTypesPromise,
+        ]);
         const loadedWorkflowById = loadedWorkflows.reduce<WorkflowById>(
           (accumulator, currentValue) => {
             return { ...accumulator, [currentValue.id]: currentValue };
@@ -29,6 +36,7 @@ const ExampleWorkflows: FC<Props> = ({ userName }) => {
           {}
         );
         const loadedWorkflowIds = loadedWorkflows.map(workflow => workflow.id);
+        setWorkflowTypes(loadedWorkflowTypes);
         setWorkflowById(loadedWorkflowById);
         setWorkflowIds(loadedWorkflowIds);
       } catch (err) {
@@ -52,6 +60,7 @@ const ExampleWorkflows: FC<Props> = ({ userName }) => {
   if (currentWorkflow === null) {
     return (
       <div>
+        <div>{userName}</div>
         {workflowIds.map(id => (
           <ExampleWorkflowsItem key={id} id={id} onClick={handleClick} />
         ))}
@@ -62,7 +71,9 @@ const ExampleWorkflows: FC<Props> = ({ userName }) => {
     <ExampleWorkflowsDetail
       id={currentWorkflow}
       stateId={workflowById[currentWorkflow].stateId}
+      typeId={workflowById[currentWorkflow].typeId}
       userName={userName}
+      workflowTypes={workflowTypes}
     />
   );
 };
