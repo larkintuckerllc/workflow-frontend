@@ -3,7 +3,7 @@ const URL = 'http://localhost:3000/users';
 export interface User {
   id: number;
   name: string;
-  profile_id: number;
+  profileId: number;
 }
 
 export const getUsers = async () => {

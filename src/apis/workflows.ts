@@ -2,8 +2,8 @@ const URL = 'http://localhost:3000/workflows';
 
 export interface Workflow {
   id: number;
-  workflow_state_id: number;
-  workflow_type_id: number;
+  stateId: number;
+  typeId: number;
 }
 
 export const getWorkflows = async () => {

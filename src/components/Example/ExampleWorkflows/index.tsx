@@ -61,7 +61,7 @@ const ExampleWorkflows: FC<Props> = ({ userName }) => {
   return (
     <ExampleWorkflowsDetail
       id={currentWorkflow}
-      stateId={workflowById[currentWorkflow].workflow_state_id}
+      stateId={workflowById[currentWorkflow].stateId}
       userName={userName}
     />
   );
