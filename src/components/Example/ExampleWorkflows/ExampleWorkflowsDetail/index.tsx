@@ -1,5 +1,6 @@
 import React, { FC, useMemo } from 'react';
 import { WorkflowType } from '../../../../apis/workflowTypes';
+import ExampleWorkflowsDetailA from './ExampleWorkflowsDetailA';
 
 interface Props {
   id: number;
@@ -46,6 +47,7 @@ const ExampleWorkflowsDetail: FC<Props> = ({ id, stateId, userName, typeId, work
           {workflowAction.name}
         </button>
       ))}
+      <ExampleWorkflowsDetailA />
     </div>
   );
 };

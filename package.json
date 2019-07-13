@@ -7,6 +7,7 @@
     "@types/node": "12.6.2",
     "@types/react": "16.8.23",
     "@types/react-dom": "16.8.4",
+    "formik": "^1.5.8",
     "react": "^16.8.6",
     "react-app-polyfill": "^1.0.1",
     "react-dom": "^16.8.6",
@@ -46,11 +47,13 @@
   },
   "husky": {
     "hooks": {
-        "pre-commit": "export CI=true && yarn build && lint-staged && yarn test",
-        "pre-push": "export CI=true && yarn build && lint-staged && yarn test"
+      "pre-commit": "export CI=true && yarn build && lint-staged && yarn test",
+      "pre-push": "export CI=true && yarn build && lint-staged && yarn test"
     }
   },
   "lint-staged": {
-    "*.{ts,tsx}": ["tslint -c tslint.json"]
+    "*.{ts,tsx}": [
+      "tslint -c tslint.json"
+    ]
   }
 }
