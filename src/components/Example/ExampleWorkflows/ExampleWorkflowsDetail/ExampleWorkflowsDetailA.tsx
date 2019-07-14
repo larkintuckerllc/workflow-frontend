@@ -12,14 +12,15 @@ const SCHEMA: DynamicFormField[] = [
   {
     initialValue: 'first',
     label: 'First Name',
+    message: 'Cannot be blank',
     name: 'firstName',
-    required: true,
+    pattern: '^\\S',
+    placeholder: 'Enter first name',
   },
   {
-    initialValue: 'last',
     label: 'Last Name',
     name: 'lastName',
-    required: true,
+    placeholder: 'Enter last name',
   },
   {
     label: 'Another',

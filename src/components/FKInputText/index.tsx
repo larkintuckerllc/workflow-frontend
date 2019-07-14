@@ -5,6 +5,7 @@ import styles from './FKInputText.module.css';
 interface AdditionalProps {
   disabled?: boolean;
   label?: string;
+  placeholder?: string;
   required?: boolean;
 }
 
@@ -13,6 +14,7 @@ const FKInputText: FC<FieldProps & AdditionalProps> = ({
   field: { name, onBlur, onChange, value },
   form: { errors, touched },
   label,
+  placeholder = '',
   required = false,
 }) => (
   <div>
@@ -25,7 +27,14 @@ const FKInputText: FC<FieldProps & AdditionalProps> = ({
           </span>
         )}
       </div>
-      <input disabled={disabled} name={name} onChange={onChange} onBlur={onBlur} value={value} />
+      <input
+        disabled={disabled}
+        name={name}
+        onChange={onChange}
+        onBlur={onBlur}
+        placeholder={placeholder}
+        value={value}
+      />
     </div>
     {errors[name] !== undefined && touched[name] && <div id={styles.rootError}>{errors[name]}</div>}
   </div>

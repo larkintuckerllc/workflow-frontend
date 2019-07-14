@@ -1,3 +1,4 @@
+import Ajv from 'ajv';
 import { Field, Form, Formik, FormikActions, FormikProps } from 'formik';
 import React, { FC, useCallback, useMemo } from 'react';
 import FKInputText from './FKInputText';
@@ -11,10 +12,12 @@ interface FormErrors {
 }
 
 export interface DynamicFormField {
-  name: string;
   initialValue?: string;
   label?: string;
-  required?: boolean;
+  message?: string;
+  name: string;
+  pattern?: string;
+  placeholder?: string;
 }
 
 export interface Props {
@@ -23,27 +26,46 @@ export interface Props {
 }
 
 const DynamicForm: FC<Props> = ({ onSubmit, schema }) => {
-  const handleRender = useCallback(
-    ({ isSubmitting, isValid, status = {} }: FormikProps<FormValues>) => (
-      <Form>
-        {schema.map((field: DynamicFormField) => (
-          <Field
-            component={FKInputText}
-            disabled={isSubmitting}
-            key={field.name}
-            label={field.label}
-            name={field.name}
-            required={field.required}
-          />
-        ))}
-        {status.failed && <div>FAILED</div>}
-        <button disabled={isSubmitting || !isValid} type="submit">
-          Submit
-        </button>
-      </Form>
-    ),
+  // TODO: TYPESCRIPT
+  const schemaById = useMemo(
+    () =>
+      schema.reduce((accumulator: any, currentValue: DynamicFormField) => {
+        return { ...accumulator, [currentValue.name]: currentValue };
+      }, {}),
     [schema]
   );
+
+  const initialValues = useMemo(
+    () =>
+      schema.reduce((accumulator: FormValues, currentValue: DynamicFormField) => {
+        const initialValue =
+          currentValue.initialValue !== undefined ? currentValue.initialValue : '';
+        return { ...accumulator, [currentValue.name]: initialValue };
+      }, {}),
+    [schema]
+  );
+
+  // TODO TYPESCRIPT
+  const ajvSchema = useMemo(() => {
+    const initialValue = {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      properties: {},
+      type: 'object',
+    };
+    return schema.reduce((accumulator: any, currentValue: DynamicFormField) => {
+      const property: any = {
+        type: 'string',
+      };
+      if (currentValue.pattern !== undefined) {
+        property.pattern = currentValue.pattern;
+      }
+      return {
+        ...accumulator,
+        properties: { ...accumulator.properties, [currentValue.name]: property },
+      };
+    }, initialValue);
+  }, [schema]);
+
   const handleSubmit = useCallback(
     async (
       values: FormValues,
@@ -61,33 +83,49 @@ const DynamicForm: FC<Props> = ({ onSubmit, schema }) => {
     [onSubmit]
   );
 
+  // TYPESCRIPT
   const handleValidate = useCallback(
     (formValues: FormValues) => {
-      const errors: FormErrors = {};
-      schema.forEach(field => {
-        if (field.required !== true) {
-          return;
-        }
-        const { name } = field;
-        if (formValues[name] === undefined) {
-          errors[name] = 'Required';
-        } else if (formValues[name].trim() === '') {
-          errors[name] = 'Required';
-        }
-      });
+      let errors: FormErrors = {};
+      const ajv = new Ajv({ allErrors: true });
+      const validate = ajv.compile(ajvSchema);
+      validate(formValues);
+      if (validate.errors) {
+        errors = validate.errors.reduce((accumulator: any, error: any) => {
+          const str = error.dataPath.substring(1);
+          const customMessage = schemaById[str].message;
+          const message = customMessage !== undefined ? customMessage : 'Required';
+          return { ...accumulator, [str]: message };
+        }, {});
+      }
       return errors;
     },
+    [ajvSchema, schemaById]
+  );
+
+  const handleRender = useCallback(
+    ({ isSubmitting, isValid, status = {} }: FormikProps<FormValues>) => (
+      <Form>
+        {schema.map((field: DynamicFormField) => (
+          <Field
+            component={FKInputText}
+            disabled={isSubmitting}
+            key={field.name}
+            label={field.label}
+            name={field.name}
+            placeholder={field.placeholder}
+            required={field.pattern !== undefined}
+          />
+        ))}
+        {status.failed && <div>FAILED</div>}
+        <button disabled={isSubmitting || !isValid} type="submit">
+          Submit
+        </button>
+      </Form>
+    ),
     [schema]
   );
-  const initialValues = useMemo(
-    () =>
-      schema.reduce((accumulator: FormValues = {}, currentValue: DynamicFormField) => {
-        const initialValue =
-          currentValue.initialValue !== undefined ? currentValue.initialValue : '';
-        return { ...accumulator, [currentValue.name]: initialValue };
-      }, {}),
-    [schema]
-  );
+
   return (
     <Formik
       initialValues={initialValues}
