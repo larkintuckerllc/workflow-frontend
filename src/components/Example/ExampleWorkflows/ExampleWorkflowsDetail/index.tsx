@@ -10,44 +10,50 @@ interface Props {
   workflowTypes: WorkflowType[];
 }
 
-interface EnabledActionById {
-  [key: number]: boolean;
+interface EnabledActionByName {
+  [key: string]: boolean;
 }
 
-const computeEnabledActionById = (stateId: number, workflowType?: WorkflowType) => {
+const computeEnabledActionByName = (stateId: number, workflowType?: WorkflowType) => {
   if (workflowType === undefined) {
     return {};
   }
-  return workflowType.workflowActions.reduce<EnabledActionById>((prev, workflowAction) => {
+  return workflowType.workflowActions.reduce<EnabledActionByName>((prev, workflowAction) => {
     const matchingWorkflowState = workflowAction.workflowStates.find(
       workflowState => workflowState.id === stateId
     );
-    return { ...prev, [workflowAction.id]: matchingWorkflowState !== undefined };
+    return { ...prev, [workflowAction.name]: matchingWorkflowState !== undefined };
   }, {});
 };
 
 const ExampleWorkflowsDetail: FC<Props> = ({ id, stateId, userName, typeId, workflowTypes }) => {
   const currentWorkflowType = workflowTypes.find(workflowType => workflowType.id === typeId);
-  const enabledActionById = useMemo(() => computeEnabledActionById(stateId, currentWorkflowType), [
-    stateId,
-    currentWorkflowType,
-  ]);
+  const enabledActionByName = useMemo(
+    () => computeEnabledActionByName(stateId, currentWorkflowType),
+    [stateId, currentWorkflowType]
+  );
 
   if (currentWorkflowType === undefined) {
     return <div>ERROR</div>;
   }
+  // TODO: SHOW BUTTONS INDIVIUALLY
+  // TODO: SHOW C AS ANOTHER FORM
   return (
     <div>
       <div>{userName}</div>
       <div>id: {id.toString()}</div>
       <div>typeId: {typeId.toString()}</div>
       <div>stateId: {stateId.toString()}</div>
-      {currentWorkflowType.workflowActions.map(workflowAction => (
-        <button key={workflowAction.id} disabled={!enabledActionById[workflowAction.id]}>
-          {workflowAction.name}
-        </button>
-      ))}
-      <ExampleWorkflowsDetailA />
+      {enabledActionByName.A ? <ExampleWorkflowsDetailA /> : <div>A DISABLED</div>}
+      <div>
+        <button disabled={!enabledActionByName.B}>B</button>
+      </div>
+      {enabledActionByName.C ? <ExampleWorkflowsDetailA /> : <div>C DISABLED</div>}
+      <div>
+        <button disabled={!enabledActionByName.D}>D</button>
+        <button disabled={!enabledActionByName.E}>E</button>
+        <button disabled={!enabledActionByName.F}>F</button>
+      </div>
     </div>
   );
 };

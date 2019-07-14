@@ -10,26 +10,15 @@ const wait = () =>
 
 const SCHEMA: DynamicFormField[] = [
   {
-    label: 'First Name',
+    label: 'Name',
     message: 'Cannot be blank',
-    name: 'firstName',
+    name: 'name',
     pattern: '^\\S',
-    placeholder: 'Enter first name',
-  },
-  {
-    label: 'Last Name',
-    message: 'Cannot be blank',
-    name: 'lastName',
-    pattern: '^\\S',
-    placeholder: 'Enter last name',
-  },
-  {
-    label: 'Optional',
-    name: 'optional',
+    placeholder: 'Enter name',
   },
 ];
 
-const ExampleWorkflowsDetailA: FC = () => {
+const ExampleWorkflowsDetailC: FC = () => {
   const handleSubmit = useCallback(async (formValues: FormValues) => {
     await wait();
     window.console.log(formValues);
@@ -37,10 +26,10 @@ const ExampleWorkflowsDetailA: FC = () => {
 
   return (
     <div>
-      <h3>A</h3>
+      <h3>C</h3>
       <DynamicForm onSubmit={handleSubmit} schema={SCHEMA} />
     </div>
   );
 };
 
-export default ExampleWorkflowsDetailA;
+export default ExampleWorkflowsDetailC;
