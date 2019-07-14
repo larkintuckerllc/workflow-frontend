@@ -1,52 +1,39 @@
-import { Field, Form, Formik, FormikActions, FormikProps } from 'formik';
 import React, { FC, useCallback } from 'react';
-import FKInputForm from '../../../FKInputText';
+import DynamicForm, { DynamicFormField, FormValues } from '../../../DynamicForm';
 
-interface FormValues {
-  name: string;
-}
+const wait = () =>
+  new Promise(resolve => {
+    setTimeout(() => {
+      resolve();
+    }, 3000);
+  });
 
-interface FormErrors {
-  [key: string]: string;
-}
+const SCHEMA: DynamicFormField[] = [
+  {
+    initialValue: 'first',
+    label: 'First Name',
+    name: 'firstName',
+    required: true,
+  },
+  {
+    initialValue: 'last',
+    label: 'Last Name',
+    name: 'lastName',
+    required: true,
+  },
+  {
+    label: 'Another',
+    name: 'another',
+  },
+];
 
 const ExampleWorkflowsDetailA: FC = () => {
-  const handleRender = useCallback(
-    ({ isSubmitting, isValid }: FormikProps<FormValues>) => (
-      <Form>
-        <Field component={FKInputForm} name="name" />
-        <button disabled={isSubmitting || !isValid} type="submit">
-          Submit
-        </button>
-      </Form>
-    ),
-    []
-  );
-  const handleSubmit = useCallback(
-    (values: FormValues, { resetForm, setSubmitting }: FormikActions<FormValues>) => {
-      window.console.log(values);
-      setSubmitting(false);
-      resetForm();
-    },
-    []
-  );
-
-  const handleValidate = useCallback(({ name }: FormValues) => {
-    const errors: FormErrors = {};
-    if (name === '') {
-      errors.name = 'Required';
-    }
-    return errors;
+  const handleSubmit = useCallback(async (formValues: FormValues) => {
+    await wait();
+    window.console.log(formValues);
   }, []);
 
-  return (
-    <Formik
-      initialValues={{ name: '' }}
-      onSubmit={handleSubmit}
-      render={handleRender}
-      validate={handleValidate}
-    />
-  );
+  return <DynamicForm onSubmit={handleSubmit} schema={SCHEMA} />;
 };
 
 export default ExampleWorkflowsDetailA;
