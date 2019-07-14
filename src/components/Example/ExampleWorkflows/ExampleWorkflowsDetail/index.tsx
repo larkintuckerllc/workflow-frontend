@@ -1,6 +1,7 @@
 import React, { FC, useMemo } from 'react';
 import { WorkflowType } from '../../../../apis/workflowTypes';
 import ExampleWorkflowsDetailA from './ExampleWorkflowsDetailA';
+import ExampleWorkflowsDetailC from './ExampleWorkflowsDetailC';
 
 interface Props {
   id: number;
@@ -48,7 +49,7 @@ const ExampleWorkflowsDetail: FC<Props> = ({ id, stateId, userName, typeId, work
       <div>
         <button disabled={!enabledActionByName.B}>B</button>
       </div>
-      {enabledActionByName.C ? <ExampleWorkflowsDetailA /> : <div>C DISABLED</div>}
+      {enabledActionByName.C ? <ExampleWorkflowsDetailC /> : <div>C DISABLED</div>}
       <div>
         <button disabled={!enabledActionByName.D}>D</button>
         <button disabled={!enabledActionByName.E}>E</button>
