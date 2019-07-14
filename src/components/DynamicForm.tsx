@@ -1,4 +1,4 @@
-import Ajv from 'ajv';
+import Ajv, { ErrorObject } from 'ajv';
 import { Field, Form, Formik, FormikActions, FormikProps } from 'formik';
 import React, { FC, useCallback, useMemo } from 'react';
 import FKInputText from './FKInputText';
@@ -20,16 +20,19 @@ export interface DynamicFormField {
   placeholder?: string;
 }
 
+interface SchemaById {
+  [key: string]: DynamicFormField;
+}
+
 export interface Props {
   onSubmit: (formValues: FormValues) => Promise<void>;
   schema: DynamicFormField[];
 }
 
 const DynamicForm: FC<Props> = ({ onSubmit, schema }) => {
-  // TODO: TYPESCRIPT
   const schemaById = useMemo(
     () =>
-      schema.reduce((accumulator: any, currentValue: DynamicFormField) => {
+      schema.reduce<SchemaById>((accumulator: SchemaById, currentValue: DynamicFormField) => {
         return { ...accumulator, [currentValue.name]: currentValue };
       }, {}),
     [schema]
@@ -37,7 +40,7 @@ const DynamicForm: FC<Props> = ({ onSubmit, schema }) => {
 
   const initialValues = useMemo(
     () =>
-      schema.reduce((accumulator: FormValues, currentValue: DynamicFormField) => {
+      schema.reduce<FormValues>((accumulator: FormValues, currentValue: DynamicFormField) => {
         const initialValue =
           currentValue.initialValue !== undefined ? currentValue.initialValue : '';
         return { ...accumulator, [currentValue.name]: initialValue };
@@ -45,14 +48,14 @@ const DynamicForm: FC<Props> = ({ onSubmit, schema }) => {
     [schema]
   );
 
-  // TODO TYPESCRIPT
+  // AJV DOES NOT PROVIDE A SCHEMA TYPE
   const ajvSchema = useMemo(() => {
     const initialValue = {
       $schema: 'http://json-schema.org/draft-07/schema#',
       properties: {},
       type: 'object',
     };
-    return schema.reduce((accumulator: any, currentValue: DynamicFormField) => {
+    return schema.reduce<any>((accumulator: any, currentValue: DynamicFormField) => {
       const property: any = {
         type: 'string',
       };
@@ -83,7 +86,6 @@ const DynamicForm: FC<Props> = ({ onSubmit, schema }) => {
     [onSubmit]
   );
 
-  // TYPESCRIPT
   const handleValidate = useCallback(
     (formValues: FormValues) => {
       let errors: FormErrors = {};
@@ -91,11 +93,11 @@ const DynamicForm: FC<Props> = ({ onSubmit, schema }) => {
       const validate = ajv.compile(ajvSchema);
       validate(formValues);
       if (validate.errors) {
-        errors = validate.errors.reduce((accumulator: any, error: any) => {
-          const str = error.dataPath.substring(1);
-          const customMessage = schemaById[str].message;
+        errors = validate.errors.reduce((accumulator: FormErrors, error: ErrorObject) => {
+          const name = error.dataPath.substring(1);
+          const customMessage = schemaById[name].message;
           const message = customMessage !== undefined ? customMessage : 'Required';
-          return { ...accumulator, [str]: message };
+          return { ...accumulator, [name]: message };
         }, {});
       }
       return errors;
